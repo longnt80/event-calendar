@@ -1,14 +1,16 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
+import { withStyles } from '@material-ui/core/styles';
 import { addDays } from 'date-fns';
 
 import Day from './Day';
 
-const WeekWrapper = styled.div`
-  flex: 1;
-  display: flex;
-`;
+const styles = {
+  root: {
+    flex: '1',
+    display: 'flex',
+  }
+}
 
 class Week extends Component {
   static propTypes = {
@@ -34,12 +36,13 @@ class Week extends Component {
   }
 
   render() {
+    const { classes } = this.props;
     return (
-      <WeekWrapper>
+      <div className={classes.root}>
         {this.renderDays()}
-      </WeekWrapper>
+      </div>
     );
   }
 }
 
-export default Week;
+export default withStyles(styles)(Week);

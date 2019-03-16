@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import styled from 'styled-components';
+import { withStyles } from '@material-ui/core/styles';
 import {
   startOfMonth,
   endOfMonth,
@@ -13,15 +13,17 @@ import {
 } from 'date-fns';
 
 import Week from './Week';
-import Modal from './common/Modal';
+// import Modal from './common/Modal';
 
-const CalendarWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  border-left: 1px solid #ccc9c9;
-  border-top: 1px solid #ccc9c9;
-`;
+const styles = {
+  root: {
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
+    borderLeft: '1px solid #ccc9c9',
+    borderTop: '1px solid #ccc9c9',
+  }
+}
 
 class Calendar extends Component {
   renderWeek = () => {
@@ -51,11 +53,12 @@ class Calendar extends Component {
   }
 
   render() {
+    const { classes } = this.props;
     return (
-      <CalendarWrapper>
+      <div className={classes.root}>
         {this.renderWeek()}
-        <Modal open={this.props.modalIsOpen}>Some Form</Modal>
-      </CalendarWrapper>
+        {/* <Modal open={this.props.modalIsOpen}>Some Form</Modal> */}
+      </div>
     );
   }
 }
@@ -66,4 +69,4 @@ const mapStateToProps = (state) => ({
 
 export default connect(
   mapStateToProps,
-)(Calendar);
+)(withStyles(styles)(Calendar));

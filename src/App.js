@@ -1,46 +1,51 @@
 import React, { Component } from 'react';
-import styled from 'styled-components';
-import { createGlobalStyle } from 'styled-components';
+import { MuiThemeProvider, withStyles } from '@material-ui/core/styles';
+import CssBaseline from '@material-ui/core/CssBaseline';
 import './App.css';
 import Calendar from './components/Calendar';
+import THEME from './theme';
 
-const GlobalStyle = createGlobalStyle`
-  html, body {
-    height: 100%;
+const globalStyles = {
+  '@global': {
+    html: {
+      height: '100%',
+    },
+    body: {
+      fontFamily: [
+          '-apple-system',
+          'BlinkMacSystemFont',
+          '"Segoe UI"',
+          'Roboto',
+          '"Helvetica Neue"',
+          'Arial',
+          'sans-serif',
+          '"Apple Color Emoji"',
+          '"Segoe UI Emoji"',
+          '"Segoe UI Symbol"',
+        ].join(','),
+      height: '100%',
+    },
   }
-  body {
-    margin: 0;
-    padding: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-      "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-      sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+}
 
-    & > #root {
-      height: 100%;
-    }
+const styles = {
+  root: {
+    height: '100%',
   }
-
-  code {
-    font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-      monospace;
-  }
-`
-
-const AppWrapper = styled.div`
-  height: 100%;
-`;
+}
 
 class App extends Component {
   render() {
+    const { classes } = this.props;
     return (
-      <AppWrapper>
-        <GlobalStyle />
-        <Calendar />
-      </AppWrapper>
+      <MuiThemeProvider theme={THEME}>
+        <React.Fragment>
+          <CssBaseline />
+          <Calendar />
+        </React.Fragment>
+      </MuiThemeProvider>
     );
   }
 }
 
-export default App;
+export default withStyles(globalStyles, styles)(App);

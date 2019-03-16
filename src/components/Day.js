@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import styled from 'styled-components';
+import { withStyles } from '@material-ui/core/styles';
 import _ from 'lodash';
 import {
   getDate,
@@ -15,33 +15,43 @@ import {
   addEvent,
   deleteEvent,
 } from '../store/actions/eventActions';
+
 import Event from './Event';
 
-const DayWrapper = styled.div`
-  flex: 1;
-  min-width: calc(100%/7);
-  max-width: calc(100%/7);
-  border-right: 1px solid #ccc9c9;
-  border-bottom: 1px solid #ccc9c9;
-  background-color: ${props => props.inThisMonth ? "#fff" : "#ddd"};
-  color: ${props => props.inThisMonth ? "#101010" : "#b7b6b6"};
-`;
-
-const Container = styled.div`
-  padding: 5px;
-`;
-
-const DateContainer = styled.div`
-  padding: 3px;
-  border-radius: 50%;
-  height: 18px;
-  width: 18px;
-  background-color: ${props => props.today ? "#90caf9" : "transparent"};
-`;
-
-const EventContainer = styled.div`
-  overflow: auto;
-`;
+const styles = {
+  root: {
+    flex: '1',
+    minWidth: 'calc(100%/7)',
+    maxWidth: 'calc(100%/7)',
+    borderRight: '1px solid #ccc9c9',
+    borderBottom: '1px solid #ccc9c9',
+    backgroundColor: "#ddd",
+    color: "#b7b6b6",
+  },
+  thisMonth: {
+    backgroundColor: "#fff",
+    color: "#101010",
+  },
+  container: {
+    padding: '5px',
+  },
+  dateContainer: {
+    borderRadius: '50%',
+    height: '1.6rem',
+    width: '1.6rem',
+    fontSize: '1rem',
+    backgroundColor: "transparent",
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  today: {
+    backgroundColor: "#90caf9",
+  },
+  eventContainer: {
+    overflow: 'auto',
+  }
+}
 
 class Day extends Component {
   static propTypes = {
@@ -75,21 +85,22 @@ class Day extends Component {
   }
 
   render() {
-    const { day } = this.props;
+    const { day, classes } = this.props;
     const inThisMonth = isThisMonth(day);
+    const today = isToday(day);
     return (
-      <DayWrapper
-        inThisMonth={inThisMonth}
+      <div
+        className={[classes.root, inThisMonth ? classes.thisMonth : null].join(' ')}
       >
-        <Container>
-          <DateContainer today={isToday(day)}>
+        <div className={classes.container}>
+          <div className={[classes.dateContainer, today ? classes.today : null].join(' ')}>
             {getDate(day)}
-          </DateContainer>
-          <EventContainer>
+          </div>
+          <div className={classes.eventContainer}>
             {this.renderEvents()}
-          </EventContainer>
-        </Container>
-      </DayWrapper>
+          </div>
+        </div>
+      </div>
     );
   }
 }
@@ -120,4 +131,4 @@ const mapDispatchToProps = dispatch => ({
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(Day);
+)(withStyles(styles)(Day));
