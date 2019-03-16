@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 // import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
@@ -6,6 +7,11 @@ import { Formik, Form } from 'formik';
 import { getDate, endOfMonth } from 'date-fns';
 
 import TextField from '@material-ui/core/TextField';
+import Select from '@material-ui/core/Select';
+import FormControl from '@material-ui/core/FormControl';
+import OutlinedInput from '@material-ui/core/OutlinedInput';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
 import Button from '@material-ui/core/Button';
 import Paper from '@material-ui/core/Paper';
 
@@ -17,13 +23,27 @@ const styles = {
   },
   textfield: {
     marginRight: '10px',
-    width: '150px',
+    minWidth: '120px',
   }
 }
 
 class MyForm extends Component {
   static propTypes = {
     day: PropTypes.object.isRequired,
+  }
+
+  state = {
+    typeLabelWidth: 0,
+    dateLabelWidth: 0,
+    hourLabelWidth: 0,
+  };
+
+  componentDidMount() {
+    this.setState({
+      typeLabelWidth: ReactDOM.findDOMNode(this.TypeInputLabelRef).offsetWidth,
+      dateLabelWidth: ReactDOM.findDOMNode(this.DateInputLabelRef).offsetWidth,
+      hourLabelWidth: ReactDOM.findDOMNode(this.HourInputLabelRef).offsetWidth,
+    });
   }
 
   renderOptions = () => {
@@ -33,9 +53,9 @@ class MyForm extends Component {
 
     for (let i = 1; i<=lastDate; i++ ) {
       options.push(
-        <option key={i} value={i}>
+        <MenuItem key={i} value={i}>
           {i}
-        </option>
+        </MenuItem>
       )
     }
     return options;
@@ -53,9 +73,9 @@ class MyForm extends Component {
         <Formik
           initialValues={{
             name: '',
-            state: '',
-            date: date,
             hour: '8:00 am',
+            type: 'Solo',
+            date: date,
           }}
           onSubmit={values => {
             setTimeout(() => {
@@ -78,57 +98,107 @@ class MyForm extends Component {
                 margin="normal"
                 fullWidth
                 />
-
-              <TextField
-                label="State"
-                name="state"
-                select
-                value={values.state}
-                onChange={handleChange}
-                onBlur={handleBlur}
+              <FormControl
                 variant="outlined"
                 margin="normal"
                 fullWidth
               >
-                {EVENT_STATE.map(state => (
-                    <option key={state} value={state}>
-                      {state}
-                    </option>
-                  ))
-                }
-              </TextField>
-
-              <TextField
-                className={classes.textfield}
-                label="Date"
-                name="date"
-                select
-                value={values.date}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                variant="outlined"
-                margin="normal"
+                <InputLabel
+                  ref={ref => {
+                    this.TypeInputLabelRef = ref;
+                  }}
+                  htmlFor="type-select"
                 >
-                {this.renderOptions()}
-              </TextField>
-              <TextField
-                className={classes.textfield}
-                label="Hour"
-                name="hour"
-                select
-                value={values.hour}
-                onChange={handleChange}
-                onBlur={handleBlur}
+                  Type
+                </InputLabel>
+                <Select
+                  label="State"
+                  name="type"
+                  value={values.type}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  input={
+                    <OutlinedInput
+                      labelWidth={this.state.typeLabelWidth}
+                      name="type-select"
+                      id="type-select"
+                    />
+                  }
+                >
+                  {EVENT_STATE.map(state => (
+                      <MenuItem key={state} value={state}>
+                        {state}
+                      </MenuItem>
+                    ))
+                  }
+                </Select>
+              </FormControl>
+
+              <FormControl
                 variant="outlined"
+                className={classes.textfield}
                 margin="normal"
               >
-                {BUSINESS_HOURS.map(hour => (
-                    <option key={hour.code} value={hour.code}>
-                      {hour.value}
-                    </option>
-                  ))
-                }
-              </TextField>
+                <InputLabel
+                  ref={ref => {
+                    this.DateInputLabelRef = ref;
+                  }}
+                  htmlFor="date-select"
+                >
+                  Date
+                </InputLabel>
+                <Select
+                  label="Date"
+                  name="date"
+                  value={values.date}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  input={
+                    <OutlinedInput
+                      labelWidth={this.state.dateLabelWidth}
+                      name="date-select"
+                      id="date-select"
+                    />
+                  }
+                >
+                  {this.renderOptions()}
+                </Select>
+              </FormControl>
+              <FormControl
+                variant="outlined"
+                className={classes.textfield}
+                margin="normal"
+              >
+                <InputLabel
+                  ref={ref => {
+                    this.HourInputLabelRef = ref;
+                  }}
+                  htmlFor="hour-select"
+                >
+                  Hour
+                </InputLabel>
+                <Select
+                  name="hour"
+                  value={values.hour}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  input={
+                    <OutlinedInput
+                      labelWidth={this.state.hourLabelWidth}
+                      name="hour-select"
+                      id="hour-select"
+                    />
+                  }
+                  autoWidth
+                >
+                  {BUSINESS_HOURS.map(hour => (
+                      <MenuItem key={hour.code} value={hour.value}>
+                        {hour.value}
+                      </MenuItem>
+                    ))
+                  }
+                </Select>
+              </FormControl>
               <Paper className={classes.button} elevation={0}>
                 <Button
                   variant="contained"
