@@ -9,17 +9,17 @@ import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import Paper from '@material-ui/core/Paper';
 
+import { EVENT_STATE, BUSINESS_HOURS } from '../constants';
+
 const styles = {
   button: {
     margin: '10px 0',
+  },
+  textfield: {
+    marginRight: '10px',
+    width: '150px',
   }
 }
-
-const EVENT_STATE = [
-  'Solo',
-  'Team',
-  'Company'
-]
 
 class MyForm extends Component {
   static propTypes = {
@@ -55,7 +55,7 @@ class MyForm extends Component {
             name: '',
             state: '',
             date: date,
-            hour: '',
+            hour: '8:00 am',
           }}
           onSubmit={values => {
             setTimeout(() => {
@@ -99,6 +99,7 @@ class MyForm extends Component {
               </TextField>
 
               <TextField
+                className={classes.textfield}
                 label="Date"
                 name="date"
                 select
@@ -107,8 +108,26 @@ class MyForm extends Component {
                 onBlur={handleBlur}
                 variant="outlined"
                 margin="normal"
-              >
+                >
                 {this.renderOptions()}
+              </TextField>
+              <TextField
+                className={classes.textfield}
+                label="Hour"
+                name="hour"
+                select
+                value={values.hour}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                variant="outlined"
+                margin="normal"
+              >
+                {BUSINESS_HOURS.map(hour => (
+                    <option key={hour.code} value={hour.code}>
+                      {hour.value}
+                    </option>
+                  ))
+                }
               </TextField>
               <Paper className={classes.button} elevation={0}>
                 <Button
