@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
+// import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 import { Formik, Form } from 'formik';
 import { getDate, endOfMonth } from 'date-fns';
@@ -23,12 +23,12 @@ const EVENT_STATE = [
 
 class MyForm extends Component {
   static propTypes = {
-    chosenDay: PropTypes.object.isRequired,
+    day: PropTypes.object.isRequired,
   }
 
   renderOptions = () => {
-    const { chosenDay } = this.props;
-    const lastDate = getDate(endOfMonth(chosenDay));
+    const { day } = this.props;
+    const lastDate = getDate(endOfMonth(day));
     let options = [];
 
     for (let i = 1; i<=lastDate; i++ ) {
@@ -42,8 +42,8 @@ class MyForm extends Component {
   }
 
   render() {
-    const { chosenDay, classes } = this.props;
-    const date = getDate(chosenDay);
+    const { day, classes } = this.props;
+    const date = getDate(day);
 
     return (
       <div>
@@ -129,8 +129,4 @@ class MyForm extends Component {
 
 // })
 
-export default connect(
-  state => ({
-    chosenDay: state.modal.dayForModalForm,
-  }),
-)(withStyles(styles)(MyForm));
+export default withStyles(styles)(MyForm);

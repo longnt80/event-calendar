@@ -22,6 +22,7 @@ import {
 } from '../store/actions/eventActions';
 
 import Event from './Event';
+import Form from './Form';
 
 const styles = {
   root: {
@@ -90,13 +91,13 @@ class Day extends Component {
   }
 
   render() {
-    const { day, classes, openModal, closeModal, modalIsOpen } = this.props;
+    const { day, classes, openModal, closeModal } = this.props;
     const inThisMonth = isThisMonth(day);
     const today = isToday(day);
     return (
       <React.Fragment>
         <div
-          onClick={() => openModal(day)}
+          onClick={() => openModal(<Form />, { day })}
           className={[classes.root, inThisMonth ? classes.thisMonth : null].join(' ')}
         >
           <div className={classes.container}>
@@ -124,19 +125,16 @@ const mapStateToProps = (state, ownProps) => {
     !state.events[year][month][date]
   ) return {
     events: {},
-    modalIsOpen: state.modal.isOpen
   };
 
   const events = state.events[year][month][date];
-  console.log(events);
   return {
     events,
-    modalIsOpen: state.modal.isOpen,
   };
 }
 
 const mapDispatchToProps = dispatch => ({
-  openModal: (day) => dispatch(openModal(day)),
+  openModal: (component, props) => dispatch(openModal(component, props)), // component is element: <MyComponent />
   closeModal: () => dispatch(closeModal()),
 })
 

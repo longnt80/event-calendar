@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 import {
@@ -21,7 +22,7 @@ import {
 } from '../store/actions/modalActions';
 
 import Week from './Week';
-import Form from './Form';
+// import Form from './Form';
 
 const styles = {
   root: {
@@ -45,6 +46,17 @@ const styles = {
 }
 
 class Calendar extends Component {
+  static propTypes = {
+    isOpen: PropTypes.bool.isRequired,
+    modalComponent: PropTypes.element,
+    props: PropTypes.object,
+  }
+
+  static defaultProps = {
+    modalComponent: <Paper elevation={0}>Empty</Paper>,
+    modalComponentProps: {}
+  }
+
   renderWeek = () => {
     const thisMonth = getMonth(new Date());
     const thisYear = getYear(new Date());
@@ -70,16 +82,19 @@ class Calendar extends Component {
   }
 
   render() {
-    const { classes, modalIsOpen, closeModal } = this.props;
+    const { classes, closeModal, isOpen, modalComponent, modalComponentProps } = this.props;
     return (
       <div className={classes.root}>
         {this.renderWeek()}
         <Modal
-          open={modalIsOpen}
+          open={isOpen}
           onClose={closeModal}
         >
           <Paper elevation={20} className={classes.modal}>
-            <Form />
+            {React.cloneElement(
+              modalComponent,
+              {...modalComponentProps}
+            )}
           </Paper>
         </Modal>
       </div>
@@ -88,7 +103,9 @@ class Calendar extends Component {
 }
 
 const mapStateToProps = state => ({
-  modalIsOpen: state.modal.isOpen,
+  isOpen: state.modal.isOpen,
+  modalComponent: state.modal.component,
+  modalComponentProps: state.modal.props,
 });
 
 const mapDispatchToProps = dispatch => ({
