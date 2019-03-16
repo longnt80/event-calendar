@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { addDays } from 'date-fns';
 
@@ -10,6 +11,10 @@ const WeekWrapper = styled.div`
 `;
 
 class Week extends Component {
+  static propTypes = {
+    firstDay: PropTypes.object.isRequired,
+  }
+
   renderDays = () => {
     const { firstDay } = this.props;
     const LENGTH_OF_WEEK = 7;

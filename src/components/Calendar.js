@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import styled from 'styled-components';
 import {
   startOfMonth,
@@ -12,6 +13,7 @@ import {
 } from 'date-fns';
 
 import Week from './Week';
+import Modal from './common/Modal';
 
 const CalendarWrapper = styled.div`
   display: flex;
@@ -52,9 +54,16 @@ class Calendar extends Component {
     return (
       <CalendarWrapper>
         {this.renderWeek()}
+        <Modal open={this.props.modalIsOpen}>Some Form</Modal>
       </CalendarWrapper>
     );
   }
 }
 
-export default Calendar;
+const mapStateToProps = (state) => ({
+  modalIsOpen: state.modal.isOpen
+});
+
+export default connect(
+  mapStateToProps,
+)(Calendar);
