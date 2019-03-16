@@ -28,15 +28,8 @@ const globalStyles = {
   }
 }
 
-const styles = {
-  root: {
-    height: '100%',
-  }
-}
-
 class App extends Component {
   render() {
-    const { classes } = this.props;
     return (
       <MuiThemeProvider theme={THEME}>
         <React.Fragment>
@@ -48,4 +41,4 @@ class App extends Component {
   }
 }
 
-export default withStyles(globalStyles, styles)(App);
+export default withStyles(globalStyles)(App);

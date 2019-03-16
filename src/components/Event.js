@@ -14,6 +14,7 @@ const styles = {
     marginBottom: '3px',
     display: 'flex',
     alignItems: 'center',
+    cursor: 'pointer',
 
     '&:first-child': {
       marginTop: '3px',
@@ -33,11 +34,15 @@ const styles = {
 }
 class Event extends Component {
 
+  handleClick = e => {
+    e.stopPropagation();
+  }
+
   render() {
     const { classes, hour, data } = this.props;
     const formattedHour = convertToFormattedHour(hour);
     return (
-      <div className={classes.root}>
+      <div onClick={this.handleClick} className={classes.root}>
         <span className={classes.time}>
           {formattedHour}
         </span>

@@ -12,6 +12,11 @@ import {
 } from 'date-fns';
 
 import {
+  openModal,
+  closeModal,
+} from '../store/actions/modalActions';
+
+import {
   addEvent,
   deleteEvent,
 } from '../store/actions/eventActions';
@@ -50,7 +55,7 @@ const styles = {
   },
   eventContainer: {
     overflow: 'auto',
-  }
+  },
 }
 
 class Day extends Component {
@@ -85,22 +90,25 @@ class Day extends Component {
   }
 
   render() {
-    const { day, classes } = this.props;
+    const { day, classes, openModal, closeModal, modalIsOpen } = this.props;
     const inThisMonth = isThisMonth(day);
     const today = isToday(day);
     return (
-      <div
-        className={[classes.root, inThisMonth ? classes.thisMonth : null].join(' ')}
-      >
-        <div className={classes.container}>
-          <div className={[classes.dateContainer, today ? classes.today : null].join(' ')}>
-            {getDate(day)}
-          </div>
-          <div className={classes.eventContainer}>
-            {this.renderEvents()}
+      <React.Fragment>
+        <div
+          onClick={() => openModal(day)}
+          className={[classes.root, inThisMonth ? classes.thisMonth : null].join(' ')}
+        >
+          <div className={classes.container}>
+            <div className={[classes.dateContainer, today ? classes.today : null].join(' ')}>
+              {getDate(day)}
+            </div>
+            <div className={classes.eventContainer}>
+              {this.renderEvents()}
+            </div>
           </div>
         </div>
-      </div>
+      </React.Fragment>
     );
   }
 }
@@ -114,18 +122,22 @@ const mapStateToProps = (state, ownProps) => {
     !state.events[year] ||
     !state.events[year][month] ||
     !state.events[year][month][date]
-  ) return {};
+  ) return {
+    events: {},
+    modalIsOpen: state.modal.isOpen
+  };
 
   const events = state.events[year][month][date];
   console.log(events);
   return {
-    events
+    events,
+    modalIsOpen: state.modal.isOpen,
   };
 }
 
 const mapDispatchToProps = dispatch => ({
-  addEvent,
-  deleteEvent,
+  openModal: (day) => dispatch(openModal(day)),
+  closeModal: () => dispatch(closeModal()),
 })
 
 export default connect(
