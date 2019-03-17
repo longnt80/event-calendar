@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 import { Formik, Form } from 'formik';
-import * as Yup from 'yup';
 import { isEmpty } from 'lodash';
 import {
   getDate,
@@ -43,10 +42,6 @@ const styles = {
     minWidth: '120px',
   }
 }
-
-const schema = Yup.object().shape({
-  name: Yup.string().max(20, 'Maximum 20 characters allowed').required('This is a required field'),
-});
 
 class MyForm extends Component {
   static propTypes = {
@@ -124,9 +119,12 @@ class MyForm extends Component {
     const hourCode = convertToCode(values.hour);
     let errors = {};
 
-
-    if (!!events[2019][monthIndex][values.date][hourCode] && isNewEvent) {
-      errors.duplicate = 'Duplicated events'
+    if (values.name.length > 20) {
+      errors.name = 'Maximum 20 characters allowed';
+    } else if (values.name === "") {
+      errors.name = 'This field is required';
+    } else if (!!events[2019][monthIndex][values.date][hourCode] && isNewEvent) {
+      errors.duplicate = 'Duplicated events';
     }
 
     return errors;
@@ -174,7 +172,6 @@ class MyForm extends Component {
           }}
           onSubmit={this.handleSubmit}
           validate={this.validateForm}
-          validationSchema={schema}
           render={({
             values,
             handleChange,
