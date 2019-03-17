@@ -1,10 +1,19 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
-// import { connect } from 'react-redux';
+import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 import { Formik, Form } from 'formik';
-import { getDate, endOfMonth } from 'date-fns';
+import * as Yup from 'yup';
+import {
+  getDate,
+  getMonth,
+  getYear,
+  endOfMonth,
+  getDaysInMonth,
+  isThisMonth,
+  addMonths
+} from 'date-fns';
 
 import TextField from '@material-ui/core/TextField';
 import Select from '@material-ui/core/Select';
@@ -14,8 +23,13 @@ import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import Button from '@material-ui/core/Button';
 import Paper from '@material-ui/core/Paper';
+import FormHelperText from '@material-ui/core/FormHelperText';
 
-import { EVENT_STATE, BUSINESS_HOURS } from '../constants';
+import { openModal, closeModal } from '../store/actions/modalActions';
+import { addEvent } from '../store/actions/eventActions';
+import { convertToCode } from '../utils';
+import { EVENT_STATE, BUSINESS_HOURS, MONTHS } from '../constants';
+
 
 const styles = {
   button: {
@@ -27,31 +41,50 @@ const styles = {
   }
 }
 
+const schema = Yup.object().shape({
+  name: Yup.string().max(20, 'Maximum 20 characters allowed').required('This is a required field'),
+});
+
 class MyForm extends Component {
   static propTypes = {
+    isNewEvent: PropTypes.bool,
     day: PropTypes.object.isRequired,
+    events: PropTypes.object.isRequired,
   }
 
-  state = {
-    typeLabelWidth: 0,
-    dateLabelWidth: 0,
-    hourLabelWidth: 0,
-  };
+  static defaultProps = {
+    isNewEvent: true,
+  }
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      typeLabelWidth: 0,
+      hourLabelWidth: 0,
+      dateLabelWidth: 0,
+      monthLabelWidth: 0,
+    };
+  }
 
   componentDidMount() {
     this.setState({
       typeLabelWidth: ReactDOM.findDOMNode(this.TypeInputLabelRef).offsetWidth,
-      dateLabelWidth: ReactDOM.findDOMNode(this.DateInputLabelRef).offsetWidth,
       hourLabelWidth: ReactDOM.findDOMNode(this.HourInputLabelRef).offsetWidth,
+      dateLabelWidth: ReactDOM.findDOMNode(this.DateInputLabelRef).offsetWidth,
+      monthLabelWidth: ReactDOM.findDOMNode(this.MonthInputLabelRef).offsetWidth,
     });
   }
 
-  renderOptions = () => {
-    const { day } = this.props;
-    const lastDate = getDate(endOfMonth(day));
+  renderDateOptions = (values) => {
+    const today = getDate(new Date());
+    const selectedMonthIndex = MONTHS.indexOf(values.month);
+    const lastDayOfMonth = getDate(endOfMonth(new Date(2019, selectedMonthIndex)));
+    const isCurrentMonth = isThisMonth(new Date(2019, selectedMonthIndex));
     let options = [];
+    let i = isCurrentMonth ? today : 1;
 
-    for (let i = 1; i<=lastDate; i++ ) {
+    for (; i<=lastDayOfMonth; i++ ) {
       options.push(
         <MenuItem key={i} value={i}>
           {i}
@@ -61,14 +94,69 @@ class MyForm extends Component {
     return options;
   }
 
+  renderMonthOptions = () => {
+    const thisMonth = getMonth(new Date());
+    const nextMonth = getMonth(addMonths(new Date(), 1));
+    let options = [];
+
+    for (let i = thisMonth; i <= nextMonth; i++ ) {
+      options.push(
+        <MenuItem key={i} value={MONTHS[i]}>
+          {MONTHS[i]}
+        </MenuItem>
+      )
+    }
+    return options;
+  }
+
+  validateForm = (values) => {
+    const { events } = this.props;
+    const monthIndex = MONTHS.indexOf(values.month);
+    const hourCode = convertToCode(values.hour);
+    let errors = {};
+
+
+    if (!!events[2019][monthIndex][values.date][hourCode]) {
+      errors.duplicate = 'Duplicated events'
+    }
+
+    return errors;
+  }
+
+  handleSubmit = values => {
+    const { closeModal, addEvent } = this.props;
+    const monthIndex = MONTHS.indexOf(values.month);
+    const hourCode = convertToCode(values.hour);
+    const event = {
+      year: 2019,
+      month: monthIndex,
+      date: values.date,
+      hour: hourCode,
+      data: {
+        name: values.name,
+        type: values.type,
+      }
+    }
+    addEvent(event);
+    closeModal();
+
+    // setTimeout(() => {
+    //   alert(JSON.stringify(values, null, 2));
+    //   closeModal();
+    // }, 500);
+
+  }
+
   render() {
-    const { day, classes } = this.props;
+    const { day, classes, closeModal } = this.props;
     const date = getDate(day);
+    const month = MONTHS[getMonth(day)];
+    const year = getYear(day)
 
     return (
       <div>
         <Paper elevation={0}>
-          Create an event
+          Create an event for {`${month} ${date}, ${year}`}
         </Paper>
         <Formik
           initialValues={{
@@ -76,16 +164,17 @@ class MyForm extends Component {
             hour: '8:00 am',
             type: 'Solo',
             date: date,
+            month: month,
           }}
-          onSubmit={values => {
-            setTimeout(() => {
-              alert(JSON.stringify(values, null, 2));
-            }, 500);
-          }}
+          onSubmit={this.handleSubmit}
+          validate={this.validateForm}
+          validationSchema={schema}
           render={({
             values,
             handleChange,
             handleBlur,
+            errors,
+            touched,
           }) => (
             <Form>
               <TextField
@@ -98,10 +187,15 @@ class MyForm extends Component {
                 margin="normal"
                 fullWidth
                 />
+              {errors.name && touched.name ? (
+                <FormHelperText error={!!errors.name}>
+                  {errors.name}
+                </FormHelperText>) : null
+              }
               <FormControl
                 variant="outlined"
                 margin="normal"
-                fullWidth
+                className={classes.textfield}
               >
                 <InputLabel
                   ref={ref => {
@@ -131,37 +225,6 @@ class MyForm extends Component {
                       </MenuItem>
                     ))
                   }
-                </Select>
-              </FormControl>
-
-              <FormControl
-                variant="outlined"
-                className={classes.textfield}
-                margin="normal"
-              >
-                <InputLabel
-                  ref={ref => {
-                    this.DateInputLabelRef = ref;
-                  }}
-                  htmlFor="date-select"
-                >
-                  Date
-                </InputLabel>
-                <Select
-                  label="Date"
-                  name="date"
-                  value={values.date}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  input={
-                    <OutlinedInput
-                      labelWidth={this.state.dateLabelWidth}
-                      name="date-select"
-                      id="date-select"
-                    />
-                  }
-                >
-                  {this.renderOptions()}
                 </Select>
               </FormControl>
               <FormControl
@@ -199,6 +262,71 @@ class MyForm extends Component {
                   }
                 </Select>
               </FormControl>
+              <FormControl
+                variant="outlined"
+                className={classes.textfield}
+                margin="normal"
+              >
+                <InputLabel
+                  ref={ref => {
+                    this.DateInputLabelRef = ref;
+                  }}
+                  htmlFor="date-select"
+                >
+                  Date
+                </InputLabel>
+                <Select
+                  label="Date"
+                  name="date"
+                  value={values.date}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  input={
+                    <OutlinedInput
+                      labelWidth={this.state.dateLabelWidth}
+                      name="date-select"
+                      id="date-select"
+                    />
+                  }
+                >
+                  {this.renderDateOptions(values)}
+                </Select>
+              </FormControl>
+              <FormControl
+                variant="outlined"
+                className={classes.textfield}
+                margin="normal"
+              >
+                <InputLabel
+                  ref={ref => {
+                    this.MonthInputLabelRef = ref;
+                  }}
+                  htmlFor="month-select"
+                >
+                  Month
+                </InputLabel>
+                <Select
+                  label="Month"
+                  name="month"
+                  value={values.month}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  input={
+                    <OutlinedInput
+                      labelWidth={this.state.monthLabelWidth}
+                      name="month-select"
+                      id="month-select"
+                    />
+                  }
+                >
+                  {this.renderMonthOptions()}
+                </Select>
+              </FormControl>
+              {errors.duplicate ? (
+                <FormHelperText error={!!errors.duplicate}>
+                  {errors.duplicate}
+                </FormHelperText>) : null
+              }
               <Paper className={classes.button} elevation={0}>
                 <Button
                   variant="contained"
@@ -214,8 +342,17 @@ class MyForm extends Component {
   }
 }
 
-// const mapStateToProps = state => ({
+const mapStateToProps = state => ({
+  events: state.events,
+});
 
-// })
+const mapDispatchToProps = dispatch => ({
+  addEvent: (event) => dispatch(addEvent(event)),
+  openModal: (component, props) => dispatch(openModal(component, props)),
+  closeModal: () => dispatch(closeModal()),
+})
 
-export default withStyles(styles)(MyForm);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(withStyles(styles)(MyForm));

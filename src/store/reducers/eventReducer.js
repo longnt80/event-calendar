@@ -26,16 +26,7 @@ const eventReducer = (state = initialState, action) => {
   switch(action.type) {
     case ADD_EVENT:
       return {
-        ...state,
-        [action.event.year]: {
-          [action.event.month]: {
-            [action.event.date]: {
-              [action.event.hour]: {
-                ...action.event.data
-              }
-            }
-          }
-        }
+        ...action.payload,
       }
     case DELETE_EVENT:
       return {

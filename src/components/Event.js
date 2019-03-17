@@ -41,6 +41,8 @@ class Event extends Component {
 
   handleClick = e => {
     e.stopPropagation();
+    const { hour } = this.props;
+    console.log(hour);
   }
 
   render() {
