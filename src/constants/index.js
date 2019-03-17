@@ -1,8 +1,8 @@
-export const EVENT_STATE = [
-  { SOLO: 'Solo' },
-  { TEAM: 'Team'},
-  { COMPANY: 'Company'}
-];
+export const EVENT_STATE = {
+  SOLO: 'Solo',
+  TEAM: 'Team',
+  COMPANY: 'Company'
+}
 
 export const BUSINESS_HOURS = [
   { value: '8:00 am', code: '0800' },
