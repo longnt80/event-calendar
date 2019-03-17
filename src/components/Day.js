@@ -42,6 +42,9 @@ const styles = {
   },
   container: {
     padding: '5px',
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
   },
   dateContainer: {
     display: 'flex',
