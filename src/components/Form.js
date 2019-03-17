@@ -5,16 +5,15 @@ import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
+import { isEmpty } from 'lodash';
 import {
   getDate,
   getMonth,
   getYear,
   endOfMonth,
-  getDaysInMonth,
   isThisMonth,
   addMonths
 } from 'date-fns';
-
 import TextField from '@material-ui/core/TextField';
 import Select from '@material-ui/core/Select';
 import FormControl from '@material-ui/core/FormControl';
@@ -33,7 +32,11 @@ import { EVENT_STATE, BUSINESS_HOURS, MONTHS } from '../constants';
 
 const styles = {
   button: {
-    margin: '10px 0',
+    margin: '30px 0 10px',
+
+    '&:first-child': {
+      marginRight: '10px',
+    }
   },
   textfield: {
     marginRight: '10px',
@@ -50,10 +53,16 @@ class MyForm extends Component {
     isNewEvent: PropTypes.bool,
     day: PropTypes.object.isRequired,
     events: PropTypes.object.isRequired,
+    name: PropTypes.string,
+    type: PropTypes.string,
+    hour: PropTypes.string,
   }
 
   static defaultProps = {
     isNewEvent: true,
+    name: "",
+    type: "Solo",
+    hour: "8:00 am",
   }
 
   constructor(props) {
@@ -110,20 +119,20 @@ class MyForm extends Component {
   }
 
   validateForm = (values) => {
-    const { events } = this.props;
+    const { events, isNewEvent } = this.props;
     const monthIndex = MONTHS.indexOf(values.month);
     const hourCode = convertToCode(values.hour);
     let errors = {};
 
 
-    if (!!events[2019][monthIndex][values.date][hourCode]) {
+    if (!!events[2019][monthIndex][values.date][hourCode] && isNewEvent) {
       errors.duplicate = 'Duplicated events'
     }
 
     return errors;
   }
 
-  handleSubmit = values => {
+  handleSubmit = (values, { setSubmitting }) => {
     const { closeModal, addEvent } = this.props;
     const monthIndex = MONTHS.indexOf(values.month);
     const hourCode = convertToCode(values.hour);
@@ -137,18 +146,15 @@ class MyForm extends Component {
         type: values.type,
       }
     }
-    addEvent(event);
-    closeModal();
-
-    // setTimeout(() => {
-    //   alert(JSON.stringify(values, null, 2));
-    //   closeModal();
-    // }, 500);
-
+    setTimeout(() => {
+      addEvent(event);
+      closeModal();
+      setSubmitting(false);
+    }, 500);
   }
 
   render() {
-    const { day, classes, closeModal } = this.props;
+    const { day, hour, name, type, classes, closeModal, isNewEvent } = this.props;
     const date = getDate(day);
     const month = MONTHS[getMonth(day)];
     const year = getYear(day)
@@ -156,13 +162,13 @@ class MyForm extends Component {
     return (
       <div>
         <Paper elevation={0}>
-          Create an event for {`${month} ${date}, ${year}`}
+          {isNewEvent ? "Create" : "Edit"} an event for {`${month} ${date}, ${year}`}
         </Paper>
         <Formik
           initialValues={{
-            name: '',
-            hour: '8:00 am',
-            type: 'Solo',
+            name: name !== "" ? name : "",
+            hour: hour,
+            type: type,
             date: date,
             month: month,
           }}
@@ -175,6 +181,7 @@ class MyForm extends Component {
             handleBlur,
             errors,
             touched,
+            isSubmitting,
           }) => (
             <Form>
               <TextField
@@ -262,77 +269,87 @@ class MyForm extends Component {
                   }
                 </Select>
               </FormControl>
-              <FormControl
-                variant="outlined"
-                className={classes.textfield}
-                margin="normal"
-              >
-                <InputLabel
-                  ref={ref => {
-                    this.DateInputLabelRef = ref;
-                  }}
-                  htmlFor="date-select"
+              <Paper elevation={0}>
+                <FormControl
+                  variant="outlined"
+                  className={classes.textfield}
+                  margin="normal"
                 >
-                  Date
-                </InputLabel>
-                <Select
-                  label="Date"
-                  name="date"
-                  value={values.date}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  input={
-                    <OutlinedInput
-                      labelWidth={this.state.dateLabelWidth}
-                      name="date-select"
-                      id="date-select"
-                    />
-                  }
+                  <InputLabel
+                    ref={ref => {
+                      this.DateInputLabelRef = ref;
+                    }}
+                    htmlFor="date-select"
+                  >
+                    Date
+                  </InputLabel>
+                  <Select
+                    label="Date"
+                    name="date"
+                    value={values.date}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    input={
+                      <OutlinedInput
+                        labelWidth={this.state.dateLabelWidth}
+                        name="date-select"
+                        id="date-select"
+                      />
+                    }
+                  >
+                    {this.renderDateOptions(values)}
+                  </Select>
+                </FormControl>
+                <FormControl
+                  variant="outlined"
+                  className={classes.textfield}
+                  margin="normal"
                 >
-                  {this.renderDateOptions(values)}
-                </Select>
-              </FormControl>
-              <FormControl
-                variant="outlined"
-                className={classes.textfield}
-                margin="normal"
-              >
-                <InputLabel
-                  ref={ref => {
-                    this.MonthInputLabelRef = ref;
-                  }}
-                  htmlFor="month-select"
-                >
-                  Month
-                </InputLabel>
-                <Select
-                  label="Month"
-                  name="month"
-                  value={values.month}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  input={
-                    <OutlinedInput
-                      labelWidth={this.state.monthLabelWidth}
-                      name="month-select"
-                      id="month-select"
-                    />
-                  }
-                >
-                  {this.renderMonthOptions()}
-                </Select>
-              </FormControl>
-              {errors.duplicate ? (
-                <FormHelperText error={!!errors.duplicate}>
-                  {errors.duplicate}
-                </FormHelperText>) : null
-              }
-              <Paper className={classes.button} elevation={0}>
+                  <InputLabel
+                    ref={ref => {
+                      this.MonthInputLabelRef = ref;
+                    }}
+                    htmlFor="month-select"
+                  >
+                    Month
+                  </InputLabel>
+                  <Select
+                    label="Month"
+                    name="month"
+                    value={values.month}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    input={
+                      <OutlinedInput
+                        labelWidth={this.state.monthLabelWidth}
+                        name="month-select"
+                        id="month-select"
+                      />
+                    }
+                  >
+                    {this.renderMonthOptions()}
+                  </Select>
+                </FormControl>
+                {errors.duplicate ? (
+                  <FormHelperText error={!!errors.duplicate}>
+                    {errors.duplicate}
+                  </FormHelperText>) : null
+                }
+              </Paper>
+              <Paper elevation={0}>
                 <Button
+                  disabled={isSubmitting || isEmpty(touched)}
+                  className={classes.button}
                   variant="contained"
                   color="primary"
                   type="submit"
                 >Submit</Button>
+                <Button
+                  onClick={closeModal}
+                  className={classes.button}
+                  variant="contained"
+                  color="secondary"
+                >Cancel</Button>
               </Paper>
             </Form>
           )}

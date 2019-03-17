@@ -25,7 +25,7 @@ export const addEvent = (event) => {
     newState[event.year] = newState[event.year] ? {...newState[event.year]} : {};
     newState[event.year][event.month] = newState[event.year][event.month] ? {...newState[event.year][event.month]} : {};
     newState[event.year][event.month][event.date] = newState[event.year][event.month][event.date] ? {...newState[event.year][event.month][event.date]} : {};
-    newState[event.year][event.month][event.date][event.hour] = newState[event.year][event.month][event.date][event.hour] ? {...newState[event.year][event.month][event.date][event.hour]} : {...event.data};
+    newState[event.year][event.month][event.date][event.hour] = {...event.data};
 
     dispatch({
       type: ADD_EVENT,
@@ -36,8 +36,5 @@ export const addEvent = (event) => {
 
 export const deleteEvent = (event) => {
   return (dispatchEvent, getState) => {
-    const currentState = getState();
-
-    console.log(currentState);
   }
 }

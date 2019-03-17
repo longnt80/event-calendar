@@ -1,10 +1,16 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 import {
   convertToFormattedHour,
-  convertToCode
+  // convertToCode
 } from '../utils';
+import {
+  openModal,
+} from '../store/actions/modalActions';
+
+import Form from './Form';
 
 const styles = {
   root: {
@@ -38,18 +44,35 @@ const styles = {
   },
 }
 class Event extends Component {
+  static propTypes = {
+    openModal: PropTypes.func.isRequired,
+    day: PropTypes.object.isRequired,
+    data: PropTypes.shape({
+      name: PropTypes.string,
+      type: PropTypes.string,
+    }).isRequired,
+    hour: PropTypes.string.isRequired,
+    isPast: PropTypes.bool.isRequired,
+    classes: PropTypes.object,
+  }
+
+  static defaultProps = {
+    classes: {},
+  }
 
   handleClick = e => {
     e.stopPropagation();
-    const { hour } = this.props;
-    console.log(hour);
+    const { openModal, day, data, hour } = this.props;
+    const formattedHour = convertToFormattedHour(hour);
+
+    openModal(<Form />, { day, isNewEvent: false, hour: formattedHour, ...data });
   }
 
   render() {
     const { classes, hour, data, isPast } = this.props;
     const formattedHour = convertToFormattedHour(hour);
     return (
-      <div onClick={this.handleClick} className={[classes.root, isPast ? classes.past : null].join(' ')}>
+      <div onClick={isPast ? null : this.handleClick} className={[classes.root, isPast ? classes.past : null].join(' ')}>
         <span className={classes.time}>
           {formattedHour}
         </span>
@@ -61,4 +84,11 @@ class Event extends Component {
   }
 }
 
-export default withStyles(styles)(Event);
+const mapDispatchToProps = dispatch => ({
+  openModal: (component, props) => dispatch(openModal(component, props)),
+})
+
+export default connect(
+  null,
+  mapDispatchToProps
+)(withStyles(styles)(Event));

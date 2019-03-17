@@ -115,7 +115,7 @@ class Day extends Component {
     return (
       <React.Fragment>
         <div
-          onClick={this.isPast ? null : () => openModal(<Form />, { day })}
+          onClick={this.isPast ? null : () => openModal(<Form />, { day, isNew: true })}
           className={[classes.root, this.isPast ? classes.past : null].join(' ')}
         >
           <div className={classes.container}>
