@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 import { Formik, Form } from 'formik';
+import * as Yup from 'yup';
 import { isEmpty } from 'lodash';
 import {
   getDate,
@@ -42,6 +43,12 @@ const styles = {
     minWidth: '120px',
   }
 }
+
+// const Schema = Yup.object().shape({
+//   name: Yup.string()
+//     .max(20, 'Nice try, nobody has a first name that long')
+//     .required('Required'),
+// });
 
 class MyForm extends Component {
   static propTypes = {
@@ -119,14 +126,27 @@ class MyForm extends Component {
     const hourCode = convertToCode(values.hour);
     let errors = {};
 
-    if (values.name.length > 20) {
-      errors.name = 'Maximum 20 characters allowed';
-    } else if (values.name === "") {
-      errors.name = 'This field is required';
-    } else if (!!events[2019][monthIndex][values.date][hourCode] && isNewEvent) {
-      errors.duplicate = 'Duplicated events';
-    }
+    console.log('validating');
+    console.log(values.name);
+    console.log(values.name.length > 20);
 
+    if (!values.name) {
+      errors.name = 'This field is required';
+      console.log('This field is required');
+      console.log(errors);
+    } else if (values.name.length > 20) {
+      errors.name = 'Maximum 20 characters allowed';
+      console.log('Too long');
+      console.log(errors);
+    };
+
+    if (!!events[2019][monthIndex][values.date][hourCode] && isNewEvent) {
+      errors.duplicate = 'Duplicated events';
+      console.log(errors);
+    };
+
+    console.log("Hell no");
+    console.log(errors);
     return errors;
   }
 
@@ -165,13 +185,14 @@ class MyForm extends Component {
         <Formik
           initialValues={{
             name: name !== "" ? name : "",
-            hour: hour,
+            hour: "",
             type: type,
             date: date,
             month: month,
           }}
-          onSubmit={this.handleSubmit}
           validate={this.validateForm}
+          // validationSchema={Schema}
+          onSubmit={this.handleSubmit}
           render={({
             values,
             handleChange,
