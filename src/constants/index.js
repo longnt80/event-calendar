@@ -25,4 +25,19 @@ export const BUSINESS_HOURS = [
   { value: '16:30 pm', code: '1630', },
   { value: '17:00 pm', code: '1700', },
   { value: '17:30 pm', code: '1730', },
+];
+
+export const MONTHS = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December"
 ]

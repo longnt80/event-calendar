@@ -15,10 +15,15 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     cursor: 'pointer',
+    color: '#000',
 
     '&:first-child': {
       marginTop: '3px',
     }
+  },
+  past: {
+    backgroundColor: '#bbb',
+    color: '#565656',
   },
   time: {
     fontSize: '0.6rem',
@@ -39,10 +44,10 @@ class Event extends Component {
   }
 
   render() {
-    const { classes, hour, data } = this.props;
+    const { classes, hour, data, isPast } = this.props;
     const formattedHour = convertToFormattedHour(hour);
     return (
-      <div onClick={this.handleClick} className={classes.root}>
+      <div onClick={this.handleClick} className={[classes.root, isPast ? classes.past : null].join(' ')}>
         <span className={classes.time}>
           {formattedHour}
         </span>

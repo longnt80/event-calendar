@@ -7,9 +7,11 @@ import {
   getDate,
   getMonth,
   getYear,
-  isThisMonth,
   isToday,
+  isFirstDayOfMonth,
 } from 'date-fns';
+import { isPastDay } from '../utils';
+import { MONTHS } from '../constants';
 
 import {
   openModal,
@@ -31,17 +33,22 @@ const styles = {
     maxWidth: 'calc(100%/7)',
     borderRight: '1px solid #ccc9c9',
     borderBottom: '1px solid #ccc9c9',
-    backgroundColor: "#ddd",
-    color: "#b7b6b6",
-  },
-  thisMonth: {
     backgroundColor: "#fff",
     color: "#101010",
+  },
+  past: {
+    backgroundColor: "#ddd",
+    color: "#b7b6b6",
   },
   container: {
     padding: '5px',
   },
   dateContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  date: {
     borderRadius: '50%',
     height: '1.6rem',
     width: '1.6rem',
@@ -53,6 +60,9 @@ const styles = {
   },
   today: {
     backgroundColor: "#90caf9",
+  },
+  month: {
+
   },
   eventContainer: {
     overflow: 'auto',
@@ -74,6 +84,12 @@ class Day extends Component {
     events: {}
   }
 
+  get isPast() {
+    const { day } = this.props;
+
+    return isPastDay(day);
+  }
+
   renderEvents = () => {
     const { events } = this.props;
     if (_.isEmpty(events)) return null;
@@ -83,6 +99,7 @@ class Day extends Component {
         <Event
           key={key}
           day={this.props.day}
+          isPast={this.isPast}
           hour={key}
           data={events[key]}
         />
@@ -92,17 +109,23 @@ class Day extends Component {
 
   render() {
     const { day, classes, openModal, closeModal } = this.props;
-    const inThisMonth = isThisMonth(day);
     const today = isToday(day);
+    const firstDayOfMonth = isFirstDayOfMonth(day);
+
     return (
       <React.Fragment>
         <div
-          onClick={() => openModal(<Form />, { day })}
-          className={[classes.root, inThisMonth ? classes.thisMonth : null].join(' ')}
+          onClick={this.isPast ? null : () => openModal(<Form />, { day })}
+          className={[classes.root, this.isPast ? classes.past : null].join(' ')}
         >
           <div className={classes.container}>
-            <div className={[classes.dateContainer, today ? classes.today : null].join(' ')}>
-              {getDate(day)}
+            <div className={classes.dateContainer}>
+              <span className={[classes.date, today ? classes.today : null].join(' ')}>
+                {getDate(day)}
+              </span>
+              {firstDayOfMonth &&
+                <span>{MONTHS[getMonth(day)]}</span>
+              }
             </div>
             <div className={classes.eventContainer}>
               {this.renderEvents()}

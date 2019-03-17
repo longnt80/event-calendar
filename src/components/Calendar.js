@@ -22,7 +22,7 @@ import {
 } from '../store/actions/modalActions';
 
 import Week from './Week';
-// import Form from './Form';
+import CalendarHeader from './CalendarHeader';
 
 const styles = {
   root: {
@@ -62,7 +62,7 @@ class Calendar extends Component {
     const thisYear = getYear(new Date());
     const firstDayOfMonth = startOfMonth(new Date(thisYear, thisMonth ));
     const lastDayOfMonth = endOfMonth(new Date(thisYear, thisMonth ));
-    const initialDay = startOfWeek(firstDayOfMonth);
+    const initialDay = startOfWeek(firstDayOfMonth); // add 1 day if switch to Monday as first day of week
     const lastDay =  endOfWeek(lastDayOfMonth);
     const numberOfWeeks = differenceInWeeks(addDays(lastDay, 1), addDays(initialDay, -1));
     const LENGTH_OF_WEEK = 7;
@@ -85,6 +85,7 @@ class Calendar extends Component {
     const { classes, closeModal, isOpen, modalComponent, modalComponentProps } = this.props;
     return (
       <div className={classes.root}>
+        <CalendarHeader />
         {this.renderWeek()}
         <Modal
           open={isOpen}
