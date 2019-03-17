@@ -244,9 +244,9 @@ class MyForm extends Component {
                     />
                   }
                 >
-                  {EVENT_STATE.map(state => (
-                      <MenuItem key={state} value={state}>
-                        {state}
+                  {Object.keys(EVENT_STATE).map(stateVar => (
+                      <MenuItem key={EVENT_STATE[stateVar]} value={EVENT_STATE[stateVar]}>
+                        {EVENT_STATE[stateVar]}
                       </MenuItem>
                     ))
                   }
