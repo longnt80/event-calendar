@@ -1,7 +1,7 @@
 export const EVENT_STATE = [
-  'Solo',
-  'Team',
-  'Company'
+  { SOLO: 'Solo' },
+  { TEAM: 'Team'},
+  { COMPANY: 'Company'}
 ];
 
 export const BUSINESS_HOURS = [
