@@ -107,10 +107,10 @@ class MyForm extends Component {
 
   renderMonthOptions = () => {
     const thisMonth = getMonth(new Date());
-    const nextMonth = getMonth(addMonths(new Date(), 1));
+    const lastMonth = 11;
     let options = [];
 
-    for (let i = thisMonth; i <= nextMonth; i++ ) {
+    for (let i = thisMonth; i <= lastMonth; i++ ) {
       options.push(
         <MenuItem key={i} value={MONTHS[i]}>
           {MONTHS[i]}

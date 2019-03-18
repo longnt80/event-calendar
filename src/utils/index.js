@@ -34,21 +34,3 @@ export const convertToCode = (formattedHour) => {
 
   return hour + minute;
 }
-
-export const isPastDay = day => {
-  const today = new Date();
-  const currentDate = getDate(today);
-  const currentMonth = getMonth(today);
-  const currentYear = getYear(today);
-  const pickedDate = getDate(day);
-  const pickedMonth = getMonth(day);
-  const pickedYear = getYear(day);
-
-  if (
-    pickedYear < currentYear ||
-    (pickedYear === currentYear && pickedMonth < currentMonth) ||
-    (pickedYear === currentYear && pickedMonth === currentMonth && pickedDate < currentDate)
-  ) return true ;
-
-  return false;
-}

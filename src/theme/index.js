@@ -5,6 +5,8 @@ import red from "@material-ui/core/colors/red";
 import deepOrange from "@material-ui/core/colors/deepOrange";
 import lightGreen from "@material-ui/core/colors/lightGreen";
 import lightBlue from "@material-ui/core/colors/lightBlue";
+import cyan from "@material-ui/core/colors/cyan";
+import grey from "@material-ui/core/colors/grey";
 
 export default createMuiTheme({
   palette: {
@@ -29,6 +31,18 @@ export default createMuiTheme({
     },
     solo: {
       main: lightGreen[500],
+    },
+    day: {
+      sunday: {
+        main: cyan[50],
+        inactive: grey[400],
+        constrastInactiveText: grey[600],
+      },
+      saturday: {
+        main: cyan[50],
+        inactive: grey[400],
+        constrastText: grey[800],
+      }
     }
   },
   typography: {

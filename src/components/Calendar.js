@@ -59,10 +59,11 @@ class Calendar extends Component {
   }
 
   renderWeek = () => {
-    const thisMonth = getMonth(new Date());
-    const thisYear = getYear(new Date());
-    const firstDayOfMonth = startOfMonth(new Date(thisYear, thisMonth ));
-    const lastDayOfMonth = endOfMonth(new Date(thisYear, thisMonth ));
+    const { displayMonth } = this.props;
+    const thisMonth = displayMonth;
+    const FIXED_YEAR = 2019;
+    const firstDayOfMonth = startOfMonth(new Date(FIXED_YEAR, thisMonth ));
+    const lastDayOfMonth = endOfMonth(new Date(FIXED_YEAR, thisMonth ));
     const initialDay = startOfWeek(firstDayOfMonth); // add 1 day if switch to Monday as first day of week
     const lastDay =  endOfWeek(lastDayOfMonth);
     const numberOfWeeks = differenceInWeeks(addDays(lastDay, 1), addDays(initialDay, -1));
@@ -109,6 +110,7 @@ const mapStateToProps = state => ({
   isOpen: state.modal.isOpen,
   modalComponent: state.modal.component,
   modalComponentProps: state.modal.props,
+  displayMonth: state.setting.displayMonth,
 });
 
 const mapDispatchToProps = dispatch => ({

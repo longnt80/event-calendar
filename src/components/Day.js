@@ -9,8 +9,11 @@ import {
   getYear,
   isToday,
   isFirstDayOfMonth,
+  compareDesc,
+  startOfDay,
+  isWeekend,
 } from 'date-fns';
-import { isPastDay } from '../utils';
+import { isPastDay, isOutOfRange } from '../utils';
 import { MONTHS } from '../constants';
 
 import {
@@ -26,7 +29,7 @@ import {
 import Event from './Event';
 import Form from './Form';
 
-const styles = {
+const styles = theme => ({
   root: {
     flex: '1',
     minWidth: 'calc(100%/7)',
@@ -39,6 +42,13 @@ const styles = {
   past: {
     backgroundColor: "#ddd",
     color: "#b7b6b6",
+  },
+  weekend: {
+    backgroundColor: theme.palette.day.sunday.main,
+  },
+  weekendInactive: {
+    backgroundColor: theme.palette.day.sunday.inactive,
+    color: theme.palette.day.sunday.constrastInactiveText,
   },
   container: {
     padding: '5px',
@@ -71,7 +81,7 @@ const styles = {
     overflow: 'auto',
     flex: '1',
   },
-}
+})
 
 class Day extends Component {
   static propTypes = {
@@ -90,8 +100,18 @@ class Day extends Component {
 
   get isPast() {
     const { day } = this.props;
+    const today = new Date();
 
-    return isPastDay(day);
+    if (compareDesc(day, startOfDay(today)) === 1) return true;
+    return false;
+  }
+
+  get outOfRange() {
+    const { day } = this.props;
+    const limit = new Date(2019, 11, 31);
+
+    if (compareDesc(limit, day) === 1) return true;
+    return false;
   }
 
   renderEvents = () => {
@@ -104,6 +124,7 @@ class Day extends Component {
           key={key}
           day={this.props.day}
           isPast={this.isPast}
+          isOutOfRange={this.outOfRange}
           hour={key}
           data={events[key]}
         />
@@ -119,8 +140,13 @@ class Day extends Component {
     return (
       <React.Fragment>
         <div
-          onClick={this.isPast ? null : () => openModal(<Form />, { day, isNew: true })}
-          className={[classes.root, this.isPast ? classes.past : null].join(' ')}
+          onClick={(this.isPast || this.outOfRange) ? null : () => openModal(<Form />, { day, isNew: true })}
+          className={[
+            classes.root,
+            (this.isPast || this.outOfRange) ? classes.past : null,
+            ((!this.isPast && !this.outOfRange) && isWeekend(day)) ? classes.weekend : null,
+            (this.isPast || this.outOfRange) && isWeekend(day) ? classes.weekendInactive : null,
+          ].join(' ')}
         >
           <div className={classes.container}>
             <div className={classes.dateContainer}>
@@ -128,7 +154,7 @@ class Day extends Component {
                 {getDate(day)}
               </span>
               {firstDayOfMonth &&
-                <span>{MONTHS[getMonth(day)]}</span>
+                <strong>{MONTHS[getMonth(day)]}</strong>
               }
             </div>
             <div className={classes.eventContainer}>
