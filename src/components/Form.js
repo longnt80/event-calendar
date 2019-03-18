@@ -4,8 +4,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 import { Formik, Form } from 'formik';
-import * as Yup from 'yup';
-import { isEmpty } from 'lodash';
+import { get } from 'lodash';
 import {
   getDate,
   getMonth,
@@ -25,7 +24,7 @@ import Paper from '@material-ui/core/Paper';
 import FormHelperText from '@material-ui/core/FormHelperText';
 
 import { openModal, closeModal } from '../store/actions/modalActions';
-import { addEvent } from '../store/actions/eventActions';
+import { addEvent, deleteEvent } from '../store/actions/eventActions';
 import { convertToCode } from '../utils';
 import { EVENT_STATE, BUSINESS_HOURS, MONTHS } from '../constants';
 
@@ -34,8 +33,8 @@ const styles = {
   button: {
     margin: '30px 0 10px',
 
-    '&:first-child': {
-      marginRight: '10px',
+    '&:not(:first-child)': {
+      marginLeft: '10px',
     }
   },
   textfield: {
@@ -75,6 +74,7 @@ class MyForm extends Component {
       hourLabelWidth: 0,
       dateLabelWidth: 0,
       monthLabelWidth: 0,
+      errMsg: {},
     };
   }
 
@@ -124,30 +124,36 @@ class MyForm extends Component {
     const { events, isNewEvent } = this.props;
     const monthIndex = MONTHS.indexOf(values.month);
     const hourCode = convertToCode(values.hour);
+    const eventIsExisted = get(events, [2019, monthIndex, values.date, hourCode], false);
     let errors = {};
-
-    console.log('validating');
-    console.log(values.name);
-    console.log(values.name.length > 20);
+    console.log("Start validation");
 
     if (!values.name) {
       errors.name = 'This field is required';
-      console.log('This field is required');
-      console.log(errors);
     } else if (values.name.length > 20) {
       errors.name = 'Maximum 20 characters allowed';
-      console.log('Too long');
-      console.log(errors);
     };
 
-    if (!!events[2019][monthIndex][values.date][hourCode] && isNewEvent) {
+    if (!values.hour) {
+      errors.hour = 'Please pick a time';
+    }
+
+    if (!values.date) {
+      errors.date = 'Please pick a date';
+    }
+
+    if (!!eventIsExisted && isNewEvent) {
       errors.duplicate = 'Duplicated events';
-      console.log(errors);
     };
 
     console.log("Hell no");
-    console.log(errors);
     return errors;
+  }
+
+  handleMonthChange = (handleChange, setFieldValue) => e => {
+    setFieldValue('date', "", true);
+
+    handleChange(e);
   }
 
   handleSubmit = (values, { setSubmitting }) => {
@@ -171,11 +177,32 @@ class MyForm extends Component {
     }, 500);
   }
 
+  handleDeleteBtn = (values) => {
+    const { deleteEvent, closeModal } = this.props;
+    const monthIndex = MONTHS.indexOf(values.month);
+    const hourCode = convertToCode(values.hour);
+    const event = {
+      year: 2019,
+      month: monthIndex,
+      date: values.date,
+      hour: hourCode,
+      data: {
+        name: values.name,
+        type: values.type,
+      }
+    }
+
+    deleteEvent(event);
+    closeModal();
+  }
+
   render() {
     const { day, hour, name, type, classes, closeModal, isNewEvent } = this.props;
     const date = getDate(day);
     const month = MONTHS[getMonth(day)];
-    const year = getYear(day)
+    const year = getYear(day);
+    const initialName = name !== "" ? name : "";
+    console.log({ initialName, type, date, month });
 
     return (
       <div>
@@ -184,14 +211,13 @@ class MyForm extends Component {
         </Paper>
         <Formik
           initialValues={{
-            name: name !== "" ? name : "",
-            hour: "",
+            name: initialName,
+            hour: hour,
             type: type,
             date: date,
             month: month,
           }}
           validate={this.validateForm}
-          // validationSchema={Schema}
           onSubmit={this.handleSubmit}
           render={({
             values,
@@ -200,6 +226,9 @@ class MyForm extends Component {
             errors,
             touched,
             isSubmitting,
+            setTouched,
+            setErrors,
+            setFieldValue,
           }) => (
             <Form>
               <TextField
@@ -286,6 +315,11 @@ class MyForm extends Component {
                     ))
                   }
                 </Select>
+                {errors.hour && touched.hour ? (
+                  <FormHelperText error={!!errors.hour}>
+                    {errors.hour}
+                  </FormHelperText>) : null
+                }
               </FormControl>
               <Paper elevation={0}>
                 <FormControl
@@ -317,6 +351,11 @@ class MyForm extends Component {
                   >
                     {this.renderDateOptions(values)}
                   </Select>
+                  {errors.date && touched.date ? (
+                    <FormHelperText error={!!errors.date}>
+                      {errors.date}
+                    </FormHelperText>) : null
+                  }
                 </FormControl>
                 <FormControl
                   variant="outlined"
@@ -335,7 +374,7 @@ class MyForm extends Component {
                     label="Month"
                     name="month"
                     value={values.month}
-                    onChange={handleChange}
+                    onChange={this.handleMonthChange(handleChange, setFieldValue)}
                     onBlur={handleBlur}
                     input={
                       <OutlinedInput
@@ -356,7 +395,7 @@ class MyForm extends Component {
               </Paper>
               <Paper elevation={0}>
                 <Button
-                  disabled={isSubmitting || isEmpty(touched)}
+                  disabled={isSubmitting}
                   className={classes.button}
                   variant="contained"
                   color="primary"
@@ -368,6 +407,14 @@ class MyForm extends Component {
                   variant="contained"
                   color="secondary"
                 >Cancel</Button>
+                {!isNewEvent &&
+                  <Button
+                    onClick={() => this.handleDeleteBtn(values)}
+                    className={classes.button}
+                    variant="contained"
+                    color="danger"
+                  >Delete</Button>
+                }
               </Paper>
             </Form>
           )}
@@ -383,6 +430,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   addEvent: (event) => dispatch(addEvent(event)),
+  deleteEvent: (event) => dispatch(deleteEvent(event)),
   openModal: (component, props) => dispatch(openModal(component, props)),
   closeModal: () => dispatch(closeModal()),
 })

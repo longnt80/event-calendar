@@ -18,10 +18,10 @@ import {
   closeModal,
 } from '../store/actions/modalActions';
 
-import {
-  addEvent,
-  deleteEvent,
-} from '../store/actions/eventActions';
+// import {
+//   addEvent,
+//   deleteEvent,
+// } from '../store/actions/eventActions';
 
 import Event from './Event';
 import Form from './Form';
@@ -112,7 +112,7 @@ class Day extends Component {
   }
 
   render() {
-    const { day, classes, openModal, closeModal } = this.props;
+    const { day, classes, openModal } = this.props;
     const today = isToday(day);
     const firstDayOfMonth = isFirstDayOfMonth(day);
 

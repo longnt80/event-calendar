@@ -1,3 +1,5 @@
+import { get, isEmpty } from 'lodash';
+
 export const ADD_EVENT = 'ADD_EVENT',
       DELETE_EVENT = 'DELETE_EVENT',
       ADD_DUPLICATED_EVENT = 'ADD_DUPLICATED_EVENT',
@@ -18,23 +20,37 @@ export const ADD_EVENT = 'ADD_EVENT',
 //   }
 // }
 
-export const addEvent = (event) => {
-  return (dispatch, getState) => {
+export const addEvent = (event) => (dispatch, getState) => {
     const { events } = getState();
     let newState = {...events};
-    newState[event.year] = newState[event.year] ? {...newState[event.year]} : {};
-    newState[event.year][event.month] = newState[event.year][event.month] ? {...newState[event.year][event.month]} : {};
-    newState[event.year][event.month][event.date] = newState[event.year][event.month][event.date] ? {...newState[event.year][event.month][event.date]} : {};
+    newState[event.year] = get(newState, [event.year], {});
+    newState[event.year][event.month] = get(newState, [event.year, event.month], {});
+    newState[event.year][event.month][event.date] = get(newState, [event.year, event.month, event.date], {});
     newState[event.year][event.month][event.date][event.hour] = {...event.data};
+
+    // newState[event.year] = newState[event.year] ? {...newState[event.year]} : {};
+    // newState[event.year][event.month] = newState[event.year][event.month] ? {...newState[event.year][event.month]} : {};
+    // newState[event.year][event.month][event.date] = newState[event.year][event.month][event.date] ? {...newState[event.year][event.month][event.date]} : {};
+    // newState[event.year][event.month][event.date][event.hour] = {...event.data};
 
     dispatch({
       type: ADD_EVENT,
       payload: newState,
     })
-  }
 }
 
-export const deleteEvent = (event) => {
-  return (dispatchEvent, getState) => {
-  }
+export const deleteEvent = event => (dispatch, getState) => {
+  const { events } = getState();
+  const newState = {...events};
+
+  delete newState[event.year][event.month][event.date][event.hour];
+  if (isEmpty(newState[event.year][event.month][event.date])) delete newState[event.year][event.month][event.date];
+  if (isEmpty(newState[event.year][event.month])) delete newState[event.year][event.month];
+  if (isEmpty(newState[event.year])) delete newState[event.year];
+  if (isEmpty(newState[event.year])) delete newState[event.year];
+
+  dispatch({
+    type: DELETE_EVENT,
+    payload: newState,
+  })
 }

@@ -38,7 +38,7 @@ const eventReducer = (state = initialState, action) => {
       }
     case DELETE_EVENT:
       return {
-        ...action.state,
+        ...action.payload,
       }
     default:
       return state;

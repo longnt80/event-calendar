@@ -81,7 +81,6 @@ class Event extends Component {
   get classForType() {
     const { classes, data } = this.props;
     let typeClass = "";
-    console.log(data.type);
 
     if (EVENT_STATE.SOLO === data.type) {
       typeClass = classes.solo;
