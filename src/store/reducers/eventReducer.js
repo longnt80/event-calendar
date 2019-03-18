@@ -1,7 +1,7 @@
 import {
   ADD_EVENT,
   DELETE_EVENT,
-} from '../actions/eventActions';
+} from '../constants';
 
 const initialState = {
   2019: {

@@ -1,12 +1,9 @@
-import { get, isEmpty } from 'lodash';
+import {
+  ADD_EVENT,
+  DELETE_EVENT
+} from '../constants';
 
-export const ADD_EVENT = 'ADD_EVENT',
-      DELETE_EVENT = 'DELETE_EVENT',
-      ADD_DUPLICATED_EVENT = 'ADD_DUPLICATED_EVENT',
-      ADD_EVENT_SUCCESS = 'ADD_EVENT_SUCCESS',
-      ADD_EVENT_FAILURE = 'ADD_EVENT_FAILURE',
-      DELETE_EVENT_SUCCESS = 'DELETE_EVENT_SUCCESS',
-      DELETE_EVENT_FAILURE = 'DELETE_EVENT_FAILURE';
+import { get, isEmpty } from 'lodash';
 
 // event objet shape example:
 // event: {
@@ -27,11 +24,6 @@ export const addEvent = (event) => (dispatch, getState) => {
     newState[event.year][event.month] = get(newState, [event.year, event.month], {});
     newState[event.year][event.month][event.date] = get(newState, [event.year, event.month, event.date], {});
     newState[event.year][event.month][event.date][event.hour] = {...event.data};
-
-    // newState[event.year] = newState[event.year] ? {...newState[event.year]} : {};
-    // newState[event.year][event.month] = newState[event.year][event.month] ? {...newState[event.year][event.month]} : {};
-    // newState[event.year][event.month][event.date] = newState[event.year][event.month][event.date] ? {...newState[event.year][event.month][event.date]} : {};
-    // newState[event.year][event.month][event.date][event.hour] = {...event.data};
 
     dispatch({
       type: ADD_EVENT,
