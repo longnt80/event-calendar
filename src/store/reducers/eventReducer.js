@@ -18,6 +18,14 @@ const initialState = {
         '1100': {name: "Hey", type: "Solo"},
         '1230': {name: "Ha", type: "Team"}
       },
+      30: {
+        '0830': {name: "Ho longssdf dsdfsdfs asdasdasdas", type: "Solo"},
+        '1000': {name: "Some event", type: "Company"},
+        '1100': {name: "Anniversary", type: "Company"},
+        '1130': {name: "Hampr", type: "Company"},
+        '1300': {name: "Year End", type: "Company"},
+        '1700': {name: "Something else", type: "Company"},
+      },
     }
   }
 };

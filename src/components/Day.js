@@ -69,6 +69,7 @@ const styles = {
   },
   eventContainer: {
     overflow: 'auto',
+    flex: '1',
   },
 }
 

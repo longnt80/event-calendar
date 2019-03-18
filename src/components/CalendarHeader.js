@@ -4,6 +4,7 @@ import { withStyles } from '@material-ui/core/styles';
 const styles = {
   root: {
     display: 'flex',
+    borderTop: '1px solid #ccc9c9',
   },
   cell: {
     flex: '1',

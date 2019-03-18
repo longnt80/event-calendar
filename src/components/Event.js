@@ -9,10 +9,11 @@ import {
 import {
   openModal,
 } from '../store/actions/modalActions';
+import { EVENT_STATE } from '../constants';
 
 import Form from './Form';
 
-const styles = {
+const styles = theme => ({
   root: {
     backgroundColor: '#fb8c00',
     borderRadius: '8px',
@@ -26,6 +27,15 @@ const styles = {
     '&:first-child': {
       marginTop: '3px',
     }
+  },
+  solo: {
+    backgroundColor: theme.palette.solo.main,
+  },
+  team: {
+    backgroundColor: theme.palette.team.main,
+  },
+  company: {
+    backgroundColor: theme.palette.company.main,
   },
   past: {
     backgroundColor: '#bbb',
@@ -42,7 +52,7 @@ const styles = {
     overflow: 'hidden',
     textOverflow: 'ellipsis',
   },
-}
+})
 class Event extends Component {
   static propTypes = {
     openModal: PropTypes.func.isRequired,
@@ -68,11 +78,28 @@ class Event extends Component {
     openModal(<Form />, { day, isNewEvent: false, hour: formattedHour, ...data });
   }
 
+  get classForType() {
+    const { classes, data } = this.props;
+    let typeClass = "";
+    console.log(data.type);
+
+    if (EVENT_STATE.SOLO === data.type) {
+      typeClass = classes.solo;
+    } else if (EVENT_STATE.TEAM === data.type) {
+      typeClass = classes.team;
+    } else if (EVENT_STATE.COMPANY === data.type) {
+      typeClass = classes.company;
+    }
+
+    return typeClass;
+  }
+
   render() {
     const { classes, hour, data, isPast } = this.props;
     const formattedHour = convertToFormattedHour(hour);
+
     return (
-      <div onClick={isPast ? null : this.handleClick} className={[classes.root, isPast ? classes.past : null].join(' ')}>
+      <div onClick={isPast ? null : this.handleClick} className={[classes.root, this.classForType, isPast ? classes.past : null].join(' ')}>
         <span className={classes.time}>
           {formattedHour}
         </span>

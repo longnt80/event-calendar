@@ -23,6 +23,7 @@ import {
 
 import Week from './Week';
 import CalendarHeader from './CalendarHeader';
+import CalendarControls from './CalendarControls';
 
 const styles = {
   root: {
@@ -85,6 +86,7 @@ class Calendar extends Component {
     const { classes, closeModal, isOpen, modalComponent, modalComponentProps } = this.props;
     return (
       <div className={classes.root}>
+        <CalendarControls />
         <CalendarHeader />
         {this.renderWeek()}
         <Modal
